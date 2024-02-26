@@ -121,10 +121,35 @@ li:hover {
 #introduction p {
 	margin-bottom: 0.5em;
 }
+
 #portfolio h2 {
 	text-align: center;
 	margin-bottom: 1em;
 }
+
+.filtres-liste {
+	display: flex;
+	justify-content: center;
+}
+
+.filtres-item {
+	min-width: 80px;
+	padding: 8px 8px;
+	margin: 15px 5px 50px 5px;
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 16px;
+	text-align: center;
+	color: #1D6154;
+	border: 1px solid #1D6154;
+	border-radius: 60px;
+}
+
+.filtres-item:hover {
+	color: white;
+	background-color: #1D6154;
+}
+
 .gallery {
 	width: 100%;
 	display: grid;
@@ -135,8 +160,12 @@ li:hover {
 
 .gallery img {
 	width: 100%;
-
 }
+
+.gallery figcaption {
+	padding-top: 7px;
+}
+
 #contact {
 	width: 50%;
 margin: auto;
