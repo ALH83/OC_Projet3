@@ -22,18 +22,23 @@ fetch("http://localhost:5678/api/categories")
         filtreTous.textContent = 'Tous'
         ul.appendChild(filtreTous)
 
+        // Utilisation d'un Set pour les catégories uniques
+        let categorySet = new Set()
         // Boucle sur chaque catégorie de la galerie
         let i = 0
         while (i < data.length) {
-            const category = data[i] // Crée un élément "catégory" pour chaque travail
-            const li = document.createElement('li') // Crée un nouvel élément de liste pour chaque travail
-            li.className = 'filtres-item'
-            li.textContent = category.name
-            //Ajoute de chaque élément de liste à la liste
-            ul.appendChild(li)
+            const category = data[i] // On récupère chaque catégorie
+                if (!categorySet.has(category.name)) { //on vérifie que la catégorie n'ait pas déjà été ajoutée
+                    categorySet.add(category.name)     // on ajoute la catégorie à la liste des filtres si elle n'existe pas
+                    const li = document.createElement('li') // Nouvelle catégorie unique = nouvelle élément de liste crée
+                    li.className = 'filtres-item'
+                    li.textContent = category.name
+                    //Ajoute de chaque élément de liste à la liste ul
+                    ul.appendChild(li)
+                }
             i++
         }
-        //Ajoute de la liste à la balise filtre
+        //Ajoute de la liste à la balise "filtres"
         filtres.appendChild(ul)
     })
         //Gestion de sortie en cas d'erreur
@@ -58,7 +63,7 @@ fetch("http://localhost:5678/api/works")
         // Boucle sur chaque travail de la galerie
         let i = 0
         while (i < data.length) {
-            const work = data[i]
+            const work = data[i]  // On récupère chaque travail
             // Crée un élément "figure" pour chaque travail
             const figure = document.createElement('figure')
             figure.className = '.gallery'
@@ -75,3 +80,6 @@ fetch("http://localhost:5678/api/works")
     .catch(error => {
     alert("Erreur : " + error);
     });
+
+
+    
