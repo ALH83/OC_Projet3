@@ -127,12 +127,12 @@ li:hover {
 	margin-bottom: 1em;
 }
 
-.filtres-liste {
+#filtresMenu {
 	display: flex;
 	justify-content: center;
 }
 
-.filtres-item {
+.filtresItem {
 	min-width: 80px;
 	padding: 8px 8px;
 	margin: 15px 5px 50px 5px;
@@ -141,11 +141,12 @@ li:hover {
 	font-size: 16px;
 	text-align: center;
 	color: #1D6154;
+	background-color: white;
 	border: 1px solid #1D6154;
 	border-radius: 60px;
 }
 
-.filtres-item:hover {
+.filtresItem:hover {
 	color: white;
 	background-color: #1D6154;
 }
