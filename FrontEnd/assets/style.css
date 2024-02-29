@@ -21,6 +21,7 @@ time, mark, audio, video {
 	border: 0;
 	font-size: 100%;
 	font: inherit;
+	background: #FFFEF8;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
@@ -56,7 +57,12 @@ body {
 header {
 	display: flex;
 	justify-content: space-between;
-	margin: 50px 0
+	margin: 50px 0;
+}
+
+footer, footer * {
+	background: white;
+	height: 60px;
 }
 section {
 	margin: 50px 0
@@ -75,10 +81,9 @@ h1 > span {
 	font-family: 'Work Sans';
 	font-size:10px;
 	letter-spacing: 0.1em;
-;
 }
 
-h2{
+h2 {
 	font-family: 'Syne';
 	font-weight: 700;
 	font-size: 30px;
@@ -95,9 +100,15 @@ nav li {
 	font-size: 1.2em;
 }
 
+a {
+	color: inherit;
+    text-decoration: inherit;
+}
+
 li:hover {
 	color: #B1663C;
 }
+
 #introduction {
 	display: flex;
 	align-items: center;
@@ -141,7 +152,7 @@ li:hover {
 	font-size: 16px;
 	text-align: center;
 	color: #1D6154;
-	background-color: white;
+	background-color: #FFFEF8;
 	border: 1px solid #1D6154;
 	border-radius: 60px;
 }
@@ -167,31 +178,31 @@ li:hover {
 	padding-top: 7px;
 }
 
-#contact {
+#contact, #connexion {
 	width: 50%;
-margin: auto;
+	margin: auto;
 }
-#contact > * {
+#contact, #connexion > * {
 	text-align: center;
 
 }
-#contact h2{
+#contact h2, #connexion h2{
 	margin-bottom: 20px;
 }
-#contact form {
+#contact form, #connexion form {
 	text-align: left;
 	margin-top:30px;
 	display: flex;
 	flex-direction: column;
 }
 
-#contact input {
+#contact input, #connexion input {
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label, #connexion label {
 	margin: 2em 0 1em 0;
 }
 #contact textarea {
@@ -216,3 +227,20 @@ footer nav ul {
 	margin: 2em
 }
 
+.lienLoginLogin {
+	font-weight: 600;
+}
+
+.lienLogoutMain {
+	display: none;
+}
+
+.main-login {
+	margin-top: 180px;
+}
+
+.main-login a {
+	display: flex;
+	justify-content: center;
+	text-decoration:underline;
+}

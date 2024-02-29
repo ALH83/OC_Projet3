@@ -1,6 +1,6 @@
 //Récupération des catégories via l'API
 fetch("http://localhost:5678/api/categories")
-        // Vérifie si la requête a réussi ou non
+        // Vérifie si la requête GET a aboutit ou non
     .then(response => {
         if (!response.ok) {
             throw new Error('Erreur de communication ' + response.statusText)
@@ -58,11 +58,11 @@ function filtrerTravaux(categoryName) {
              // Efface le contenu actuel de la galerie
             gallery.innerHTML = ''
             // On détermine quelle liste doit être utilisée, soit la liste complète 'Tous' soit une liste filtrée d'une catégorie spécifiée
-            const Travaux = (categoryName === 'Tous') ? data : data.filter(work => work.category.name === categoryName)
+            const travaux = (categoryName === 'Tous') ? data : data.filter(work => work.category.name === categoryName)
             // Boucle sur chaque travail filtré pour l'afficher dans la galerie
                 let i = 0
-                while (i < Travaux.length) {
-                    const work = Travaux[i]  // On récupère chaque travail
+                while (i < travaux.length) {
+                    const work = travaux[i]  // On récupère chaque travail
                     const figure = document.createElement('figure') // Crée un élément html "figure"
                     figure.className = '.gallery'
                     figure.innerHTML = `
