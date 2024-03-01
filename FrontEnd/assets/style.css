@@ -87,7 +87,7 @@ h2 {
 	font-family: 'Syne';
 	font-weight: 700;
 	font-size: 30px;
-	color: #1D6154
+	color: #1D6154;
 }
 nav ul {
 	display: flex;
@@ -231,9 +231,6 @@ footer nav ul {
 	font-weight: 600;
 }
 
-.lienLogoutMain {
-	display: none;
-}
 
 .main-login {
 	margin-top: 180px;
@@ -243,4 +240,24 @@ footer nav ul {
 	display: flex;
 	justify-content: center;
 	text-decoration:underline;
+}
+
+.mesProjets {
+	display: flex;
+	justify-content: center;
+	align-items:baseline;
+}
+
+.mesProjets h2 {
+	padding-right: 30px;
+}
+
+#bandeauEdition {
+	background-color: black;
+	color: white;
+	text-align: center;
+	padding: 20px 0;
+	width: 100%;
+	position: fixed;
+	top: 0;
 }

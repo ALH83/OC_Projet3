@@ -34,7 +34,7 @@ function submitFormulaire (email, password) {
         .then(response => {
             // Vérifie si la réponse du serveur n'est pas OK et affiche une alerte.
             if (!response.ok) {
-                alert('La connexion a échoué')
+                alert('Erreur dans l’identifiant ou le mot de passe')
             }
             // Retourne la réponse au format JSON si la requête est OK.
             return response.json()
@@ -42,12 +42,12 @@ function submitFormulaire (email, password) {
         .then(data => {
             // Si la réponse contient un token, stocke ce token dans localStorage et redirige l'utilisateur vers la page d'accueil.
             if (data.token) {
-                localStorage.setItem('sessionToken', data.token) 
-                window.location.href = '/index.html' 
+                localStorage.setItem('sessionToken', data.token)
+                window.location.href = '/index.html'
             }
 })
         // Gère les erreurs de requête et les affiche dans la console.
         .catch(error => {
-            console.error('Erreur:', error)
+            console.error('Erreur: ', error)
         })
 }
