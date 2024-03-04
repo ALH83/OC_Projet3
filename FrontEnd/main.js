@@ -93,6 +93,7 @@ function afficherTravaux(categoryName) {
        }
 }
 
+//Affichage de la page en mode édition si utilisateur connecté
 function modeEdition() {
     const filtres = document.getElementById("filtresMenu")
     const lienLog = document.querySelector('.log')
@@ -135,7 +136,97 @@ function modeEdition() {
             localStorage.removeItem('sessionToken') //on supprime le token de connexion
             window.location.reload() //on recharge la page
         })
+
+        // Ajoute un écouteur d'événement sur le lien 'Modifier'
+        btnEdit.addEventListener('click', function(event) {
+            event.preventDefault() // Empêche la navigation
+            afficherModale() // Affiche la modale
+        })
     }
 }
+
+// Affichage de la modale
+function afficherModale() {
+    let modal = document.getElementById('maModale1')
+    if (!modal) {
+        modal = creerModale1(travauxData) // Crée la modale si elle n'existe pas déjà
+    }
+    modal.style.display = 'flex' // Affiche la modale
+}
+
+// Création de la modale affichage de la galerie photo
+function creerModale1(travauxData) {
+    const modal = document.createElement('div')
+    const modal1 = document.createElement('div')
+    modal1.id = 'maModale1'
+    modal1.className = 'modaleGalerie'
+
+    // Création du contenu de la modale
+    const modalContent = document.createElement('div')
+    modalContent.className = 'modal-content'
+    modal1.appendChild(modalContent)
+
+    // Ajout du bouton de fermeture
+    const closeButton = document.createElement('span')
+    closeButton.className = 'close'
+    closeButton.innerHTML = '&times;'
+    modalContent.appendChild(closeButton)
+
+    // Ajout du titre 'Galerie photo'
+    const modalText = document.createElement('p')
+    modalText.textContent = 'Galerie photo'
+    modalContent.appendChild(modalText)
+
+    // Ajout de toutes les photos
+    const gallery = document.createElement('div')
+    gallery.className = 'modal-gallery'
+    let i = 0
+    while (i < travauxData.length) {
+        const work = travauxData[i]
+        const imgContainer = document.createElement('div')
+        imgContainer.className = 'img-container'
+        const img = document.createElement('img')
+        const deleteBtn = document.createElement('button')
+        img.src = work.imageUrl
+        img.alt = work.title
+        deleteBtn.className = 'delete-btn'
+        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can fa-sm"></i>'
+        deleteBtn.setAttribute('aria-hidden', 'true')
+        imgContainer.appendChild(img)
+        imgContainer.appendChild(deleteBtn)
+        gallery.appendChild(imgContainer)
+        i++
+    }
+    modalContent.appendChild(gallery)
+
+    //Ajout du boutton "Ajouter une photo "
+    const addPhotoBtn = document.createElement('button')
+    addPhotoBtn.className = 'addButton'
+    addPhotoBtn.textContent = 'Ajouter une photo'
+    addPhotoBtn.addEventListener('click', function() {
+        modal1.style.display = 'none'
+        creerModale2().style.display = 'flex'
+    })
+    modalContent.appendChild(addPhotoBtn)
+
+
+    // Fermeture de la modale lorsque l'utilisateur clique sur (x)
+    closeButton.onclick = function() {
+        modal1.style.display = 'none'
+    }
+
+    // Fermeture de la modale lorsque l'utilisateur clique en dehors de celle-ci
+    window.onclick = function(eventClose) {
+        if (eventClose.target == modal1) {
+            modal1.style.display = 'none'
+        }
+    }
+
+    // Ajout de la modale au corps de la page
+    modal.appendChild(modal1)
+    document.body.appendChild(modal)
+    return modal1
+}
+
 
 initialiserPage()
