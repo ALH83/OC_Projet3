@@ -35,7 +35,6 @@ async function fetchData() {
     }
 }
 
-
 //Affichage des filtres de catégories en fonction des données reçues de l'API
 function afficherFiltres() {
     const filtres = document.getElementById("filtresMenu")
@@ -69,7 +68,6 @@ function afficherFiltres() {
             i++
         }
 }
-
 
 //Affichage des travaux en fonction des données reçues de l'API
 function afficherTravaux(categoryName) {
@@ -154,6 +152,8 @@ function afficherModale() {
         modal = creerModale1(travauxData).style.display = 'flex'
     } else {
     // si la modale existe déjà, on l'affiche
+        const existingGallery = modal.querySelector('.modal-gallery')
+        donneesGalerieModale1(existingGallery, travauxData) // Met à jour la galerie avec les données actuelles
         modal.style.display = 'flex'
     }
 }
@@ -167,7 +167,7 @@ function creerModale1(travauxData) {
     // Création du contenu de la modale
     const modalContent = document.createElement('div')
     modalContent.className = 'modal-content'
-    modal.appendChild(modalContent)
+    
 
     // Ajout du bouton de fermeture
     const closeButton = document.createElement('span')
@@ -180,39 +180,20 @@ function creerModale1(travauxData) {
     modalText.textContent = 'Galerie photo'
     modalContent.appendChild(modalText)
 
-    // Ajout de toutes les photos à partir des données déjà récupérées via l'API
     const gallery = document.createElement('div')
     gallery.className = 'modal-gallery'
-    let i = 0
-    while (i < travauxData.length) {
-        const work = travauxData[i]
-        // Ajout du container image
-        const imgContainer = document.createElement('div')
-        imgContainer.className = 'img-container'
-        // Ajout des éléments images
-        const img = document.createElement('img')
-        img.src = work.imageUrl
-        img.alt = work.title
-        // Ajout du bouton pour supprimer les photos
-        const deleteBtn = document.createElement('button')
-        deleteBtn.className = 'delete-btn'
-        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can fa-sm"></i>'
-        deleteBtn.setAttribute('aria-hidden', 'true')
-        // Rattachement des éléments au DOM
-        imgContainer.appendChild(img)
-        imgContainer.appendChild(deleteBtn)
-        gallery.appendChild(imgContainer)
-        i++
-    }
+    donneesGalerieModale1(gallery, travauxData)
     modalContent.appendChild(gallery)
+    modal.appendChild(modalContent)
 
     //Ajout du boutton "Ajouter une photo"
     const addPhotoBtn = document.createElement('button')
     addPhotoBtn.className = 'addButton'
     addPhotoBtn.textContent = 'Ajouter une photo'
+
     //Ajout d'un écouteur d'événement pour basculer (au clic) vers la modale du formulaire d'import de photos
     addPhotoBtn.addEventListener('click', function() {
-        //On cache la modale "Galerie photo"
+        //On cache la modale "Galerie photo" pour afficher la modale d'import de photos
         modal.style.display = 'none'
         creerModale2().style.display = 'flex'
     })
@@ -255,8 +236,8 @@ function creerModale2 () {
     modalText.textContent = 'Ajout photo'
     modalContent.appendChild(modalText)
 
-    // Mise en place du formulaire depuis la fonction formulaireImportPhotos
-    const form = formulaireImportPhotos()
+    // Mise en place du formulaire depuis la fonction creerFormModale2
+    const form = creerFormModale2()
 
     modalContent.appendChild(form)
     document.body.appendChild(modal2)
@@ -268,30 +249,65 @@ function creerModale2 () {
 return modal2
 }
 
+// Récupération des données pour ajout à la modale Gallerie photo
+function donneesGalerieModale1(gallery, travauxData) {
+    // Ajout de toutes les photos à partir des données déjà récupérées via l'API
+    gallery.innerHTML = '' // Vide la galerie avant de la reconstruire
+    gallery.className = 'modal-gallery'
+    let i = 0
+    while (i < travauxData.length) {
+        const work = travauxData[i]
+        // Ajout du container image
+        const imgContainer = document.createElement('div')
+        imgContainer.className = 'img-container'
+        // Ajout des éléments images
+        const img = document.createElement('img')
+        img.src = work.imageUrl
+        img.alt = work.title
+        // Ajout du bouton pour supprimer les photos
+        const deleteBtn = document.createElement('button')
+        deleteBtn.className = 'delete-btn'
+        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can fa-sm"></i>'
+        deleteBtn.setAttribute('aria-hidden', 'true')
+        deleteBtn.addEventListener('click', () => supprimerPhoto(work.id))
+        imgContainer.id = `photo-${work.id}` // chaque photo a un ID unique
+        // Rattachement des éléments au DOM
+        imgContainer.appendChild(img)
+        imgContainer.appendChild(deleteBtn)
+        gallery.appendChild(imgContainer)
+        i++
+    }
+}
+
 // Création du formulaire d'import photo pour la "modale2"
-function formulaireImportPhotos () {
-    // Création du formulaire
+function creerFormModale2 () {
+    // Création de l'élément formulaire
     const form = document.createElement('form')
     form.id = 'addPhotoForm'
 
+    // Création du bouton pour ajouter une photo
     const addPhotoButton = document.createElement('button')
     addPhotoButton.className = 'ajoutPhoto'
     addPhotoButton.setAttribute('aria-label', 'Ajouter une photo')
     addPhotoButton.innerText = '+ Ajouter photo'
+    // Événement pour ouvrir le sélecteur de fichier quand le bouton est cliqué
     addPhotoButton.addEventListener('click', (e) => {
         e.preventDefault() // Empêche toute action par défaut
         photoInput.click() // Déclenche le clic sur l'input de fichier
     })
 
+    // Création de l'"input" pour sélectionner des photos
     const photoInput = document.createElement('input')
     photoInput.type = 'file'
     photoInput.id = 'photo'
     photoInput.style.display = 'none' // Cache l'input pour ne pas le rendre visible directement
     photoInput.accept = 'image/png, image/jpeg' // Restreint les types de fichiers acceptés
-
+    
+    // Création d'un label pour l'input de photo, qui contiendra le bouton et d'autres informations
     const photoLabel = document.createElement('label')
     photoLabel.className = 'photoLabelForm'    
 
+    // Création d'un conteneur pour une icône (SVG) à l'intérieur du label
     const photoLabelIcone = document.createElement('div')
     const photoLabelSvg = document.createElement('i')
     photoLabelIcone.className = 'icone'
@@ -299,6 +315,7 @@ function formulaireImportPhotos () {
     photoLabelIcone.appendChild(photoLabelSvg)
     photoLabel.appendChild(photoLabelIcone)
 
+    // Ajout de l'input de photo et configuration du label pour l'affichage
     form.appendChild(photoInput)
     photoLabel.appendChild(addPhotoButton)
     const photoLabelInfo = document.createElement('div')
@@ -306,11 +323,10 @@ function formulaireImportPhotos () {
     photoLabelInfo.innerText ='jpg, png : 4mo max'
     photoLabel.appendChild(photoLabelInfo)
 
-
-
+    // Ajout du label configuré au formulaire
     form.appendChild(photoLabel)
 
-    // Zone de saisie de titre
+    // Création et ajout d'une zone de saisie pour le titre de la photo
     const titleInput = document.createElement('input')
     titleInput.type = 'text'
     titleInput.id = 'titleInput'
@@ -322,7 +338,7 @@ function formulaireImportPhotos () {
     form.appendChild(titleLabel)
     form.appendChild(titleInput)
 
-    // Zone de sélection de catégorie
+    // Création et ajout d'une zone de sélection pour la catégorie de la photo
     const categorySelect = document.createElement('select')
     categorySelect.id = 'categorySelect'
     const categoryLabel = document.createElement('label')
@@ -335,6 +351,7 @@ function formulaireImportPhotos () {
     defaultOption.selected = true // On sélectionne cette option par défaut
     defaultOption.disabled = true // On ne permet pas à l'utilisateur de choisir cette option
     categorySelect.appendChild(defaultOption)
+    // Remplissage des options de catégories avec une boucle
     let i = 0
     while (i < categoriesData.length) {
         const category = categoriesData[i]
@@ -347,35 +364,70 @@ function formulaireImportPhotos () {
     form.appendChild(categoryLabel)
     form.appendChild(categorySelect)
 
-    // Bouton de soumission
+    // Création et ajout du bouton de soumission du formulaire
     const submitBtn = document.createElement('button')
     submitBtn.id = 'submitBtn'
     submitBtn.type = 'submit'
     submitBtn.textContent = 'Valider'
-    submitBtn.disabled = true // Bouton désactivé par défaut
+    submitBtn.disabled = true // Désactivé par défaut jusqu'à ce que les champs requis soient remplis
     form.appendChild(submitBtn)
 
-    // Validation du formulaire
+    // Création et masquage par défaut du message de succès
+    let messageSuccess = document.getElementById('messageSuccess') // Vérifie si l'élément existe déjà
+    if (!messageSuccess) {
+       messageSuccess = document.createElement('div')
+       messageSuccess.id = 'messageSuccess'
+       messageSuccess.textContent = 'Photo ajoutée avec succès !'
+       form.appendChild(messageSuccess) // Ajoutez le message de succès au formulaire
+    }
+
+    // Gestion de la validation du formulaire
     form.addEventListener('input', () => {
-        submitBtn.disabled = !photoInput.files.length || !titleInput.value.trim() || !categorySelect.value
-        const isValid = photoInput.files.length && titleInput.value.trim() && categorySelect.value
-        submitBtn.disabled = !isValid
-        submitBtn.className = isValid ? 'submitBtnActive' : 'submitBtnInactive'
+    // Vérifie si tous les champs obligatoires sont remplis
+    const formOK = photoInput.files.length && titleInput.value.trim() && categorySelect.value
+    console.log("Formulaire valide ?:", formOK) // Log l'état de validité du formulaire
+    // Active ou désactive le bouton de soumission basé sur la validité du formulaire
+    submitBtn.disabled = !formOK
+    // Change la classe du bouton de soumission pour refléter l'état du formulaire
+    submitBtn.className = formOK ? 'submitBtnActive' : 'submitBtnInactive'
     })
 
+    // Gestion de la soumission du formulaire
+    form.addEventListener('submit', e => {
+    e.preventDefault() // Empêche la soumission automatique du formulaire
+    // Récupère les valeurs des champs du formulaire
+    const title = titleInput.value.trim()
+    const imageFile = photoInput.files[0] // On suppose qu'un seul fichier est sélectionné
+    const categoryName = categorySelect.value
+    // Soumet les données si le formulaire est valide
+    if (title && imageFile && categoryName) {
+        envoyerDonneesFormulaire(title, imageFile, categoryName)
+    } else {
+        console.log('Le formulaire n\'est pas valide.')
+    }
+    })
 
+    // Retourne le formulaire complété
     return form
 }
 
 // Gestionnaire d'événements qui concerne l'affichage et la navigation pour les modales
-function gestionnaireEvenementModal() {
+function gestionnaireEvenementsModale() {
     // Fermeture de la modale lorsque l'utilisateur clique sur le bouton de fermeture ou en dehors de la modale
     window.onclick = function(event) {
         const modales = document.querySelectorAll('.modaleGalerie, .modaleFormulaire')  // Récupère toutes les modales
         modales.forEach(modal => {
             if (event.target.classList.contains('closeBtn') || event.target === modal) {
-                closeAllModals() // Ferme toutes les modales
-                clearForm() // Vide le formulaire
+                fermetureModales() // Ferme toutes les modales
+                // Cache le message de succès lors de la fermeture de la modale
+                const messageSuccess = document.getElementById('messageSuccess')
+                if (messageSuccess) {
+                    messageSuccess.style.display = 'none'
+                }
+                // Rafraîchit les données et l'affichage
+                fetchData().then(() => {
+                    afficherTravaux('Tous')
+                })
             }
         })
 
@@ -390,12 +442,90 @@ function gestionnaireEvenementModal() {
     }
 }
 
+// Fonction pour envoyer les données du formulaire
+async function envoyerDonneesFormulaire(title, imageFile, categoryName) {
+    // Trouve l'ID de catégorie correspondant au nom de la catégorie sélectionnée
+    const category = categoriesData.find(cat => cat.name === categoryName)
+    if (!category) {
+        alert('Catégorie non trouvée')
+        return
+    }
+
+    const categoryId = category.id
+
+    // Crée un FormData et ajoute les champs
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('image', imageFile)
+    formData.append('category', categoryId)
+    
+    // Récupération du token
+    const sessionToken = localStorage.getItem('sessionToken')
+
+    // Effectue la requête POST
+    try {
+        const response = await fetch('http://localhost:5678/api/works', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${sessionToken}`
+            },
+            body: formData
+        })
+
+        if (!response.ok) {
+            throw new Error('Problème avec la requête : ' + response.statusText)
+        }
+
+        const result = await response.json()
+        console.log('Succès:', result)
+        document.getElementById('messageSuccess').style.display = 'block' // Affiche le message de succès
+
+        // Réinitialisation des champs du formulaire
+        const form = document.getElementById('addPhotoForm')
+        form.reset()
+
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi:', error)
+        alert('Erreur lors de l\'envoi: ' + error.message)
+    }
+}
+
+// Fonction pour supprimer une photo de la gallerie
+async function supprimerPhoto(photoId) {
+    // Récupération du token
+    const sessionToken = localStorage.getItem('sessionToken')
+    try {
+        const response = await fetch(`http://localhost:5678/api/works/${photoId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${sessionToken}`
+            }
+        })
+
+        if (!response.ok) {
+            throw new Error('Problème avec la requête : ' + response.statusText)
+        }
+
+        // Supprime l'élément de la galerie photo dans la mdoale
+        const photoASupprimer = document.getElementById(`photo-${photoId}`)
+        if (photoASupprimer) {
+            photoASupprimer.remove()
+        }
+        // Réactualisation de la galerie photo dans la page des projets pour prendre en compte la suppression
+        afficherTravaux('Tous')
+
+    } catch (error) {
+        console.error('Erreur lors de la suppression:', error)
+        alert('Erreur lors de la suppression: ' + error.message)
+    }
+}
+
 // Fermeture des modales
-function closeAllModals() {
+function fermetureModales() {
     document.querySelector('.modaleGalerie').style.display = 'none'
     document.querySelector('.modaleFormulaire').style.display = 'none'
 }
 
 initialiserPage().then(() => {
-    gestionnaireEvenementModal() // Configure les gestionnaires après l'initialisation de la page
+    gestionnaireEvenementsModale() // Configure les gestionnaires après l'initialisation de la page
 })

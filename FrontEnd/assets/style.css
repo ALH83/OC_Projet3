@@ -301,8 +301,8 @@ footer nav ul {
 	display:flex;
 	flex-wrap: wrap;
 	background-color: white;
-	justify-content: space-between;
-	margin: 0 80px;
+	justify-content: center;
+	margin: 0 60px;
 	border-bottom: 1px solid #B3B3B3;
 }
 
@@ -329,14 +329,6 @@ footer nav ul {
 	border-radius: 2px;
 }
 
-/*.img-container button i {
-	padding: 4px 0 4px 0;
-	position: absolute;
-    right: 2px; 
-    border: 5px solid black;
-	border-radius: 2px;
-}*/
-
 .addButton, #submitBtn {
 	display: block;
 	margin: 30px auto;
@@ -346,10 +338,13 @@ footer nav ul {
 	font-weight: 700;
 	font-size: 14px;
 	text-align: center;
-	color: white;
-	background-color: #1D6154;
 	border: 0 solid #1D6154;
 	border-radius: 60px;
+}
+
+.addButton {
+	color: white;
+	background-color: #1D6154;
 }
 /* Le bouton de fermeture (x) */
 .closeBtn {
@@ -463,22 +458,28 @@ footer nav ul {
 	font-size: 14px;
 }
 
-.chevron.bottom:before {
-	padding-right: 20px;
-}
 
 #submitBtn {
 	padding: 10px 0;
 	margin: 50px auto;
+	background: #A7A7A7;
+    color: white;
 }
 
 .submitBtnActive {
-    background: green;
+    background: #1D6154;
     color: white;
 }
 
 .submitBtnInactive {
-    background: blue;
-    color: black;
+    background: #A7A7A7;
+    color: white;
 }
 
+#messageSuccess {
+    display: none;
+    color: red;
+	background-color: transparent;
+	text-align: center;
+    font-size: 16px;
+}
