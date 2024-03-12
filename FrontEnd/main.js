@@ -147,14 +147,14 @@ function modeEdition() {
 // Affichage de la modale 
 function afficherModale() {
     let modal = document.getElementById('modale1')
-    // si la modale n'existe pas déjà n'existe pas déjà, renvoie vers la fonction creerModale1 pour la créer
+    // si la modale n'existe pas déjà, renvoie vers la fonction creerModale1 pour la créer
     if (!modal) {
         modal = creerModale1(travauxData).style.display = 'flex'
     } else {
     // si la modale existe déjà, on l'affiche
-        const existingGallery = modal.querySelector('.modal-gallery')
-        donneesGalerieModale1(existingGallery, travauxData) // Met à jour la galerie avec les données actuelles
-        modal.style.display = 'flex'
+        const modalGallery = modal.querySelector('.modal-gallery')
+        donneesGalerieModale1(modalGallery, travauxData) // Met à jour la galerie avec les données actuelles
+        modal.style.display = 'flex' // Affichage de la modale
     }
 }
 
@@ -168,28 +168,34 @@ function creerModale1(travauxData) {
     const modalContent = document.createElement('div')
     modalContent.className = 'modal-content'
     
-
     // Ajout du bouton de fermeture
     const closeButton = document.createElement('span')
     closeButton.className = 'closeBtn'
     closeButton.innerHTML = '&times;'
-    modalContent.appendChild(closeButton)
-
+    
     // Ajout du titre 'Galerie photo'
     const modalText = document.createElement('p')
     modalText.textContent = 'Galerie photo'
-    modalContent.appendChild(modalText)
-
+    
+    //Ajout de la gallerie photo à partir des données récupérées via la fonction donneesGalerieModale1
     const gallery = document.createElement('div')
     gallery.className = 'modal-gallery'
     donneesGalerieModale1(gallery, travauxData)
-    modalContent.appendChild(gallery)
-    modal.appendChild(modalContent)
-
+    
     //Ajout du boutton "Ajouter une photo"
     const addPhotoBtn = document.createElement('button')
     addPhotoBtn.className = 'addButton'
     addPhotoBtn.textContent = 'Ajouter une photo'
+    
+    // Rattachement des éléments au DOM
+    modalContent.appendChild(closeButton)
+    modalContent.appendChild(modalText)
+    modalContent.appendChild(gallery)
+    modalContent.appendChild(addPhotoBtn)
+    // Ajout de tout le contenu (boutons, titre, gallerie)  à la modale
+    modal.appendChild(modalContent)
+    // Ajout de la modale au corps de la page
+    document.body.appendChild(modal)
 
     //Ajout d'un écouteur d'événement pour basculer (au clic) vers la modale du formulaire d'import de photos
     addPhotoBtn.addEventListener('click', function() {
@@ -197,11 +203,76 @@ function creerModale1(travauxData) {
         modal.style.display = 'none'
         creerModale2().style.display = 'flex'
     })
-    modalContent.appendChild(addPhotoBtn)
 
-    // Ajout de la modale au corps de la page
-    document.body.appendChild(modal)
     return modal
+}
+
+// Récupération des données pour ajout à la modale Gallerie photo
+function donneesGalerieModale1(gallery, travauxData) {
+    // Ajout de toutes les photos à partir des données déjà récupérées via l'API
+    gallery.innerHTML = '' // Vide la galerie avant de la reconstruire
+    gallery.className = 'modal-gallery'
+    //Boucle sur la liste de données (travaux)
+    let i = 0
+    while (i < travauxData.length) {
+        const work = travauxData[i]
+        // Ajout du container image
+        const imgContainer = document.createElement('div')
+        imgContainer.className = 'img-container'
+        // Ajout des éléments images
+        const img = document.createElement('img')
+        img.src = work.imageUrl
+        img.alt = work.title
+        // Ajout du bouton pour supprimer les photos
+        const deleteBtn = document.createElement('button')
+        deleteBtn.className = 'deleteBtn'
+        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can fa-sm"></i>'
+        deleteBtn.setAttribute('aria-hidden', 'true')
+        // Attribue un identifiant pour chaque conteneur d'image basé sur l'ID du travail
+        imgContainer.id = `photo-${work.id}` // chaque photo a un ID unique
+
+        // Ajout d'un écouteur d'événement pour supprimer la photo
+        deleteBtn.addEventListener('click', () => supprimerPhotoModale1(work.id))
+
+        // Rattachement des éléments au DOM
+        imgContainer.appendChild(img)
+        imgContainer.appendChild(deleteBtn)
+        gallery.appendChild(imgContainer)
+        i++
+    }
+}
+
+// Supprimer une photo de la gallerie
+async function supprimerPhotoModale1(photoId) {
+    // Récupération du token
+    const sessionToken = localStorage.getItem('sessionToken')
+    try {
+        const response = await fetch(`http://localhost:5678/api/works/${photoId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${sessionToken}`
+            }
+        })
+        // Vérifie si la réponse est une erreur 
+        if (!response.ok) {
+            throw new Error('Problème avec la requête : ' + response.statusText)
+        }
+
+        // Supprime l'élément de la galerie photo dans la mdoale
+        const photoASupprimer = document.getElementById(`photo-${photoId}`)
+        // Vérifie si l'élément existe et, dans ce cas, le supprime du DOM
+        if (photoASupprimer) {
+            photoASupprimer.remove()
+        }
+        
+        // Mise à jour des données de travaux en tenant compte du travail (photo) supprimé
+        travauxData = travauxData.filter(travail => travail.id !== photoId)
+        // Rafraîchit l'affichage de la galerie pour refléter la suppression
+        afficherTravaux('Tous')
+
+    } catch (error) {
+        alert('Erreur lors de la suppression: ' + error.message)
+    }
 }
 
 // Création de la modale "ajout photos"
@@ -217,84 +288,51 @@ function creerModale2 () {
     // Création du contenu de la modale
     const modalContent = document.createElement('div')
     modalContent.className = 'modal-content'
-    modal2.appendChild(modalContent)
-
+    
     // Ajout du bouton "précédent"
     const prevButton = document.createElement('span')
     prevButton.className = 'prevBtn'
-    prevButton.innerHTML = '&lt;'
-    modalContent.appendChild(prevButton)
-
+    prevButton.innerHTML = '<i class="fa-solid fa-arrow-left"></i>'
+    
     // Ajout du bouton de fermeture
     const closeButton = document.createElement('span')
     closeButton.className = 'closeBtn'
     closeButton.innerHTML = '&times;'
-    modalContent.appendChild(closeButton)
-
+    
     // Ajout du titre 'Ajout photo'
     const modalText = document.createElement('p')
     modalText.textContent = 'Ajout photo'
+
+    // Mise en place du formulaire depuis la fonction formulaireModale2
+    const form = formulaireModale2()
+
+    //Rattachement des éléments au DOM
+    modalContent.appendChild(prevButton)
+    modalContent.appendChild(closeButton)
     modalContent.appendChild(modalText)
-
-    // Mise en place du formulaire depuis la fonction creerFormModale2
-    const form = creerFormModale2()
-
     modalContent.appendChild(form)
+    modal2.appendChild(modalContent)
     document.body.appendChild(modal2)
 
 } else {
     // Si la modale existe déjà, on l'affiche
     modal2.style.display = 'flex'
 }
+
 return modal2
 }
 
-// Récupération des données pour ajout à la modale Gallerie photo
-function donneesGalerieModale1(gallery, travauxData) {
-    // Ajout de toutes les photos à partir des données déjà récupérées via l'API
-    gallery.innerHTML = '' // Vide la galerie avant de la reconstruire
-    gallery.className = 'modal-gallery'
-    let i = 0
-    while (i < travauxData.length) {
-        const work = travauxData[i]
-        // Ajout du container image
-        const imgContainer = document.createElement('div')
-        imgContainer.className = 'img-container'
-        // Ajout des éléments images
-        const img = document.createElement('img')
-        img.src = work.imageUrl
-        img.alt = work.title
-        // Ajout du bouton pour supprimer les photos
-        const deleteBtn = document.createElement('button')
-        deleteBtn.className = 'delete-btn'
-        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can fa-sm"></i>'
-        deleteBtn.setAttribute('aria-hidden', 'true')
-        deleteBtn.addEventListener('click', () => supprimerPhoto(work.id))
-        imgContainer.id = `photo-${work.id}` // chaque photo a un ID unique
-        // Rattachement des éléments au DOM
-        imgContainer.appendChild(img)
-        imgContainer.appendChild(deleteBtn)
-        gallery.appendChild(imgContainer)
-        i++
-    }
-}
-
 // Création du formulaire d'import photo pour la "modale2"
-function creerFormModale2 () {
+function formulaireModale2 () {
     // Création de l'élément formulaire
     const form = document.createElement('form')
-    form.id = 'addPhotoForm'
-
+    form.id = 'formulaireImport'
+   
     // Création du bouton pour ajouter une photo
     const addPhotoButton = document.createElement('button')
     addPhotoButton.className = 'ajoutPhoto'
     addPhotoButton.setAttribute('aria-label', 'Ajouter une photo')
     addPhotoButton.innerText = '+ Ajouter photo'
-    // Événement pour ouvrir le sélecteur de fichier quand le bouton est cliqué
-    addPhotoButton.addEventListener('click', (e) => {
-        e.preventDefault() // Empêche toute action par défaut
-        photoInput.click() // Déclenche le clic sur l'input de fichier
-    })
 
     // Création de l'"input" pour sélectionner des photos
     const photoInput = document.createElement('input')
@@ -302,7 +340,7 @@ function creerFormModale2 () {
     photoInput.id = 'photo'
     photoInput.style.display = 'none' // Cache l'input pour ne pas le rendre visible directement
     photoInput.accept = 'image/png, image/jpeg' // Restreint les types de fichiers acceptés
-    
+
     // Création d'un label pour l'input de photo, qui contiendra le bouton et d'autres informations
     const photoLabel = document.createElement('label')
     photoLabel.className = 'photoLabelForm'    
@@ -312,21 +350,19 @@ function creerFormModale2 () {
     const photoLabelSvg = document.createElement('i')
     photoLabelIcone.className = 'icone'
     photoLabelSvg.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="76" width="76" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path fill="#b9c5cc" d="M448 80c8.8 0 16 7.2 16 16V415.8l-5-6.5-136-176c-4.5-5.9-11.6-9.3-19-9.3s-14.4 3.4-19 9.3L202 340.7l-30.5-42.7C167 291.7 159.8 288 152 288s-15 3.7-19.5 10.1l-80 112L48 416.3l0-.3V96c0-8.8 7.2-16 16-16H448zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm80 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"/></svg>'
-    photoLabelIcone.appendChild(photoLabelSvg)
-    photoLabel.appendChild(photoLabelIcone)
 
-    // Ajout de l'input de photo et configuration du label pour l'affichage
-    form.appendChild(photoInput)
-    photoLabel.appendChild(addPhotoButton)
+    // Configuratoin du label pour l'affichage
     const photoLabelInfo = document.createElement('div')
-    photoLabelInfo.className = 'file-info'
+    photoLabelInfo.className = 'fileInfo'
     photoLabelInfo.innerText ='jpg, png : 4mo max'
-    photoLabel.appendChild(photoLabelInfo)
 
-    // Ajout du label configuré au formulaire
-    form.appendChild(photoLabel)
+    // Ajoutez ici le nouvel élément d'aperçu d'image
+    const imgPreview = document.createElement('img')
+    imgPreview.innerHTML = '' // Efface les aperçus existants
+    imgPreview.id = 'imagePreview'
+    imgPreview.style.display = 'none' // Cachez l'aperçu par défaut
 
-    // Création et ajout d'une zone de saisie pour le titre de la photo
+    // Création d'une zone de saisie pour le titre de la photo
     const titleInput = document.createElement('input')
     titleInput.type = 'text'
     titleInput.id = 'titleInput'
@@ -335,8 +371,6 @@ function creerFormModale2 () {
     titleLabel.setAttribute('for', 'title')
     titleLabel.textContent = 'Titre'
     titleLabel.id = 'titleLabel'
-    form.appendChild(titleLabel)
-    form.appendChild(titleInput)
 
     // Création et ajout d'une zone de sélection pour la catégorie de la photo
     const categorySelect = document.createElement('select')
@@ -361,54 +395,281 @@ function creerFormModale2 () {
         categorySelect.appendChild(option)
         i++
     }
-    form.appendChild(categoryLabel)
-    form.appendChild(categorySelect)
+
+    // Ajoute une ligne de séparation en -dessous du formulaire
+    const trait = document.createElement('div')
+    trait.id = 'trait'
 
     // Création et ajout du bouton de soumission du formulaire
     const submitBtn = document.createElement('button')
     submitBtn.id = 'submitBtn'
     submitBtn.type = 'submit'
     submitBtn.textContent = 'Valider'
-    submitBtn.disabled = true // Désactivé par défaut jusqu'à ce que les champs requis soient remplis
+
+    // Ajout des messages d'erreur (cachés) en prévision de les afficher via la fonction "validationFormModale2"
+    const photoErrorMsg = document.createElement('div')
+    photoErrorMsg.id = 'photoErrorMsg'
+    photoErrorMsg.style.color = 'red'
+    photoErrorMsg.style.display = 'none'
+    const titleErrorMsg = document.createElement('div')
+    titleErrorMsg.id = 'titleErrorMsg'
+    titleErrorMsg.style.color = 'red'
+    titleErrorMsg.style.display = 'none'
+    const categoryErrorMsg = document.createElement('div')
+    categoryErrorMsg.id = 'categoryErrorMsg'
+    categoryErrorMsg.style.color = 'red'
+    categoryErrorMsg.style.display = 'none'
+
+
+    //Rattachement des éléments au DOM
+    photoLabelIcone.appendChild(photoLabelSvg)
+    photoLabel.appendChild(photoLabelIcone)
+    photoLabel.appendChild(addPhotoButton)
+    photoLabel.appendChild(photoLabelInfo)
+    form.appendChild(photoInput)
+    form.appendChild(photoLabel)
+    form.appendChild(imgPreview)
+    form.appendChild(photoErrorMsg)
+    form.appendChild(titleLabel)
+    form.appendChild(titleInput)
+    form.appendChild(titleErrorMsg)
+    form.appendChild(categoryLabel)
+    form.appendChild(categorySelect)
+    form.appendChild(categoryErrorMsg)
+    form.appendChild(trait)
     form.appendChild(submitBtn)
 
-    // Création et masquage par défaut du message de succès
-    let messageSuccess = document.getElementById('messageSuccess') // Vérifie si l'élément existe déjà
-    if (!messageSuccess) {
-       messageSuccess = document.createElement('div')
-       messageSuccess.id = 'messageSuccess'
-       messageSuccess.textContent = 'Photo ajoutée avec succès !'
-       form.appendChild(messageSuccess) // Ajoutez le message de succès au formulaire
-    }
-
-    // Gestion de la validation du formulaire
-    form.addEventListener('input', () => {
-    // Vérifie si tous les champs obligatoires sont remplis
-    const formOK = photoInput.files.length && titleInput.value.trim() && categorySelect.value
-    console.log("Formulaire valide ?:", formOK) // Log l'état de validité du formulaire
-    // Active ou désactive le bouton de soumission basé sur la validité du formulaire
-    submitBtn.disabled = !formOK
-    // Change la classe du bouton de soumission pour refléter l'état du formulaire
-    submitBtn.className = formOK ? 'submitBtnActive' : 'submitBtnInactive'
+    //Ecouteurs d'événements
+    // Ouverture du sélecteur de fichier quand le bouton "Ajouter photo" est cliqué
+    addPhotoButton.addEventListener('click', (e) => {
+        e.preventDefault() // Empêche toute action par défaut
+        photoInput.click() // Déclenche le clic sur l'input de fichier
     })
 
-    // Gestion de la soumission du formulaire
+    // Switch de l'affichage du bouton Valider en fonction du remplissage complet ou non du formulaire
+    form.addEventListener('input', () => {
+        // Vérifie si tous les champs obligatoires sont remplis
+        const photoOK = photoInput.files.length > 0 // Vérifie si une photo est sélectionnée
+        const titleOK = titleInput.value.trim().length > 0 // Vérifie si le titre est rempli
+        const categoryOK = categorySelect.value // Vérifie si une catégorie est sélectionnée
+        // Détermine si le formulaire est valide
+        const formOK = photoOK && titleOK && categoryOK
+        // Si le formulaire est valide, change la classe du bouton de soumission pour refléter l'état du formulaire
+        submitBtn.id = formOK ? 'submitBtnActive' : 'submitBtn'
+    })
+
+    // Clic sur le bouton de validation
     form.addEventListener('submit', e => {
-    e.preventDefault() // Empêche la soumission automatique du formulaire
-    // Récupère les valeurs des champs du formulaire
-    const title = titleInput.value.trim()
-    const imageFile = photoInput.files[0] // On suppose qu'un seul fichier est sélectionné
-    const categoryName = categorySelect.value
-    // Soumet les données si le formulaire est valide
-    if (title && imageFile && categoryName) {
-        envoyerDonneesFormulaire(title, imageFile, categoryName)
-    } else {
-        console.log('Le formulaire n\'est pas valide.')
-    }
+        e.preventDefault() // Empêche la soumission automatique du formulaire
+        validationFormModale2() //renvoi vers la fonction de validation du formulaire
+    })
+
+    //Affiche la prévisualisation d'image
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0] // Récupère le fichier sélectionné (forcément le premier)
+    
+        // Vérifie la présence du fichier image
+        if (file && (file.type === "image/png" || file.type === "image/jpeg"))  {
+            // Si un fichier est sélectionné et qu'il est du bon type, continuez le traitement
+            imgPreview.src = URL.createObjectURL(file) // Prévisualisation de l'image
+            imgPreview.onload = function() {
+                URL.revokeObjectURL(imgPreview.src) // Nettoie l'URL de l'objet après le chargement
+            }
+            imgPreview.style.display = 'block' // Affiche la prévisualisation
+            photoErrorMsg.style.display = 'none' // Cache le message d'erreur, s'il est visible
+            photoLabel.style.display = 'none'
+        } else {
+            // Si le fichier n'est pas de type PNG ou JPEG
+            photoErrorMsg.textContent = 'Veuillez sélectionner une image au format PNG ou JPEG'
+            photoErrorMsg.style.display = 'block' // Montre un message d'erreur
+            imgPreview.style.display = 'none' // Cache la prévisualisation de l'image
+            photoLabel.style.display = 'block' // Affiche de nouveau le module d'import
+        }
+    })
+    
+    //Cache le message d'erreur si l'utilisateur saisi dans la zone de titre
+    titleInput.addEventListener('input', () => {
+        if (titleInput.value.trim().length > 0) { // Si le titre est non-vide
+            titleErrorMsg.style.display = 'none' // Cache le message d'erreur
+        }
+    })
+
+    //Cache le message d'erreur si l'utilisateur sélectionne une catégorie
+    categorySelect.addEventListener('change', () => {
+        if (categorySelect.value) { // Si une catégorie est sélectionnée
+            categoryErrorMsg.style.display = 'none' // Cache le message d'erreur
+        }
     })
 
     // Retourne le formulaire complété
     return form
+}
+
+// Validation du formulaire
+async function validationFormModale2() {
+    // Sélection des éléments du formulaire et des zones de message d'erreur
+    const photoInput = document.getElementById('photo')
+    const titleInput = document.getElementById('titleInput')
+    const categorySelect = document.getElementById('categorySelect')
+    const photoErrorMsg = document.getElementById('photoErrorMsg')
+    const titleErrorMsg = document.getElementById('titleErrorMsg')
+    const categoryErrorMsg = document.getElementById('categoryErrorMsg')
+  
+    // Réinitialise les messages d'erreur
+    photoErrorMsg.style.display = 'none'
+    titleErrorMsg.style.display = 'none'
+    categoryErrorMsg.style.display = 'none'
+
+    
+     
+    // Récupère les valeurs des champs du formulaire
+    const title = titleInput.value.trim()
+    const imageFile = photoInput.files[0] // On suppose qu'un seul fichier est sélectionné
+    const categoryName = categorySelect.value
+    let formValid = true // Flag de validité du formulaire
+     
+    // Vérifications des champs et affichage des messages d'erreur si nécessaire
+    if (!imageFile) {
+        photoErrorMsg.textContent = 'Photo non importée'
+        photoErrorMsg.style.display = 'block'
+        formValid = false
+    } else if (imageFile.type !== "image/jpeg" && imageFile.type !== "image/png") {
+        // Vérifie si le fichier est ni un JPEG ni un PNG
+        photoErrorMsg.textContent = 'Le fichier doit être au format JPEG ou PNG'
+        photoErrorMsg.style.display = 'block'
+        formValid = false // Met à jour la validité du formulaire
+    } else {
+        // Le fichier est correct, on peut réinitialiser le message d'erreur si nécessaire
+        photoErrorMsg.style.display = 'none'
+    }
+         
+    if (!title) {
+        titleErrorMsg.textContent = 'Titre non défini'
+        titleErrorMsg.style.display = 'block'
+        formValid = false
+    }
+    if (!categoryName) {
+        categoryErrorMsg.textContent = 'Catégorie non sélectionnée'
+        categoryErrorMsg.style.display = 'block'
+        formValid = false
+    }
+     
+    // Soumet les données si le formulaire est valide
+    if (formValid) {
+        envoiFormulaireModale2(title, imageFile, categoryName)
+    } 
+    else {
+        console.log('Le formulaire n\'est pas valide.')
+    }
+}
+
+// Envoi des données du formulaire d'import
+async function envoiFormulaireModale2(title, imageFile, categoryName) {
+    // Trouve l'ID de catégorie correspondant au nom de la catégorie sélectionnée
+    const category = categoriesData.find(cat => cat.name === categoryName)
+        // Vérifie si la catégorie existe, sinon affiche une alerte et interrompt la fonction
+    if (!category) {
+        alert('Catégorie non trouvée')
+        return
+    }
+    // Récupère l'identifiant de la catégorie sélectionnée
+    const categoryId = category.id
+
+    // Crée un FormData on lui ajoute les champs nécessaires
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('image', imageFile)
+    formData.append('category', categoryId)
+    
+    // Récupération du token stovké en local
+    const sessionToken = localStorage.getItem('sessionToken')
+
+    // Effectue la requête POST pour l'envoi des données
+    try {
+        const response = await fetch('http://localhost:5678/api/works', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${sessionToken}`
+            },
+            body: formData
+        })
+
+        // Vérifie si la requête a échoué (réponse non OK)
+        if (!response.ok) {
+            // Si le code de réponse est 401, demande à l'utilisateur de se reconnecter
+            if (response.status === 401) {
+                alert('Votre session a expiré, veuillez vous reconnecter.')
+                return // Arrête l'exécution de la fonction après l'alerte
+            }
+            throw new Error('Problème avec la requête : ' + response.statusText)
+        }
+
+        // Décode la réponse JSON reçue du serveur.
+        const result = await response.json()
+        console.log('Succès:', result)
+
+        // Ajoute le nouveau projet aux données locales pour une mise à jour instantanée de l'affichage
+        travauxData.push(result)
+        afficherTravaux('Tous') // Rafraîchit l'affichage des travaux avec les nouvelles données
+
+        // Affiche le message de succès
+        alert('Projet importé avec succès')
+
+        // Réinitialisation des champs du formulaire pour une nouvelle saisie
+        resetFormulaireModale2()
+
+    // Gère les erreurs potentielles de la requête
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi:', error)
+        alert('Erreur lors de l\'envoi: ' + error.message)
+    }
+}
+
+//Reinitialisation du formulaire
+function resetFormulaireModale2() {
+    const form = document.getElementById('formulaireImport')
+    if (form) {
+        form.reset() // Réinitialise tous les champs du formulaire
+    }
+
+    const imgPreview = document.getElementById('imagePreview')
+    if (imgPreview) {
+        imgPreview.style.display = 'none' // Cache l'aperçu de l'image
+        imgPreview.src = '' // Supprime la source de l'image
+    }
+    // Réinitialise photoLabel
+    const photoLabel = document.querySelector('.photoLabelForm')
+    photoLabel.style.display = 'block'
+
+    // Réinitialise les messages d'erreur/success
+    const photoErrorMsg = document.getElementById('photoErrorMsg')
+    if (photoErrorMsg) {
+        photoErrorMsg.style.display = 'none'
+    }
+    const titleErrorMsg = document.getElementById('titleErrorMsg')
+    if (titleErrorMsg) {
+        titleErrorMsg.style.display = 'none'
+    }
+    const categoryErrorMsg = document.getElementById('categoryErrorMsg')
+    if (categoryErrorMsg) {
+        categoryErrorMsg.style.display = 'none'
+    }
+    const messageSuccess = document.getElementById('messageSuccess')
+    if (messageSuccess) {
+        messageSuccess.style.display = 'none'
+    }
+
+    // Réinitialise la sélection de la catégorie à la valeur vide
+    const categorySelect = document.getElementById('categorySelect')
+    if (categorySelect) {
+            categorySelect.value = ''
+    }
+
+    // Réinitialise le bouton Valider
+    const submitBtn = document.getElementById('submitBtnActive')
+    if (submitBtn) {
+        submitBtn.id = 'submitBtn'
+    }
 }
 
 // Gestionnaire d'événements qui concerne l'affichage et la navigation pour les modales
@@ -419,15 +680,7 @@ function gestionnaireEvenementsModale() {
         modales.forEach(modal => {
             if (event.target.classList.contains('closeBtn') || event.target === modal) {
                 fermetureModales() // Ferme toutes les modales
-                // Cache le message de succès lors de la fermeture de la modale
-                const messageSuccess = document.getElementById('messageSuccess')
-                if (messageSuccess) {
-                    messageSuccess.style.display = 'none'
-                }
-                // Rafraîchit les données et l'affichage
-                fetchData().then(() => {
-                    afficherTravaux('Tous')
-                })
+                resetFormulaireModale2() // Reset du formulaire
             }
         })
 
@@ -435,88 +688,15 @@ function gestionnaireEvenementsModale() {
     const prevButtons = document.querySelectorAll('.modaleFormulaire .prevBtn')
     prevButtons.forEach(button => {
         button.onclick = function() {
-                document.querySelector('.modaleGalerie').style.display = 'flex'
-                document.querySelector('.modaleFormulaire').style.display = 'none'
+                document.querySelector('.modaleGalerie').style.display = 'flex'  // Affiche la modale Gallerie photo
+                document.querySelector('.modaleFormulaire').style.display = 'none'  // Cache la modale Import photo
+                let modalGallery = document.querySelector('.modal-gallery')
+                if (modalGallery) {
+                    donneesGalerieModale1(modalGallery, travauxData) // Mise à jour des données de la gallerie photo
+                }
+                resetFormulaireModale2() // Reset du formulaire
             }
         })
-    }
-}
-
-// Fonction pour envoyer les données du formulaire
-async function envoyerDonneesFormulaire(title, imageFile, categoryName) {
-    // Trouve l'ID de catégorie correspondant au nom de la catégorie sélectionnée
-    const category = categoriesData.find(cat => cat.name === categoryName)
-    if (!category) {
-        alert('Catégorie non trouvée')
-        return
-    }
-
-    const categoryId = category.id
-
-    // Crée un FormData et ajoute les champs
-    const formData = new FormData()
-    formData.append('title', title)
-    formData.append('image', imageFile)
-    formData.append('category', categoryId)
-    
-    // Récupération du token
-    const sessionToken = localStorage.getItem('sessionToken')
-
-    // Effectue la requête POST
-    try {
-        const response = await fetch('http://localhost:5678/api/works', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${sessionToken}`
-            },
-            body: formData
-        })
-
-        if (!response.ok) {
-            throw new Error('Problème avec la requête : ' + response.statusText)
-        }
-
-        const result = await response.json()
-        console.log('Succès:', result)
-        document.getElementById('messageSuccess').style.display = 'block' // Affiche le message de succès
-
-        // Réinitialisation des champs du formulaire
-        const form = document.getElementById('addPhotoForm')
-        form.reset()
-
-    } catch (error) {
-        console.error('Erreur lors de l\'envoi:', error)
-        alert('Erreur lors de l\'envoi: ' + error.message)
-    }
-}
-
-// Fonction pour supprimer une photo de la gallerie
-async function supprimerPhoto(photoId) {
-    // Récupération du token
-    const sessionToken = localStorage.getItem('sessionToken')
-    try {
-        const response = await fetch(`http://localhost:5678/api/works/${photoId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${sessionToken}`
-            }
-        })
-
-        if (!response.ok) {
-            throw new Error('Problème avec la requête : ' + response.statusText)
-        }
-
-        // Supprime l'élément de la galerie photo dans la mdoale
-        const photoASupprimer = document.getElementById(`photo-${photoId}`)
-        if (photoASupprimer) {
-            photoASupprimer.remove()
-        }
-        // Réactualisation de la galerie photo dans la page des projets pour prendre en compte la suppression
-        afficherTravaux('Tous')
-
-    } catch (error) {
-        console.error('Erreur lors de la suppression:', error)
-        alert('Erreur lors de la suppression: ' + error.message)
     }
 }
 
@@ -525,6 +705,7 @@ function fermetureModales() {
     document.querySelector('.modaleGalerie').style.display = 'none'
     document.querySelector('.modaleFormulaire').style.display = 'none'
 }
+
 
 initialiserPage().then(() => {
     gestionnaireEvenementsModale() // Configure les gestionnaires après l'initialisation de la page

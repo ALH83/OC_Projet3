@@ -263,6 +263,7 @@ footer nav ul {
 	top: 0;
 }
 
+
 /* Le fond de la modale (overlay) */
 .modaleGalerie, .modaleFormulaire {
     display: none;
@@ -301,10 +302,19 @@ footer nav ul {
 	display:flex;
 	flex-wrap: wrap;
 	background-color: white;
-	justify-content: center;
-	margin: 0 60px;
-	border-bottom: 1px solid #B3B3B3;
+	padding: 10px 80px 10px 100px;
 }
+
+.modal-gallery:after {
+    content: '';
+    display: block;
+	margin-top: 50px;
+    height: 1px;
+	width: 100%;
+    max-width: 420px;
+    background-color: #B3B3B3; 
+}
+
 
 .img-container {
 	position: relative;
@@ -312,17 +322,28 @@ footer nav ul {
 	background-color: white;
 }
 
+
+
 .img-container img {
-	width: 76px;
+	background-color: white;
+	width: 77px;
+	height: 102px;
+
+	
 	padding: 0 10px 20px 0;
 }
 
+.img-container i {
+	background: inherit;
+	padding: 0;
+}
 
-.img-container button {
+.img-container .deleteBtn {
 	position: absolute;
+	padding: 2px 5px;
 	color: #ffffff;
     top: 5px; 
-    right: 15px; 
+    right: 15px;
     background-color: black;
     border: 0px;
     cursor: pointer;
@@ -332,7 +353,7 @@ footer nav ul {
 .addButton, #submitBtn {
 	display: block;
 	margin: 30px auto;
-	padding: 8px 8px;
+	padding: 10px 8px;
 	width: 237px;
 	font-family: 'Syne';
 	font-weight: 700;
@@ -389,7 +410,6 @@ footer nav ul {
 .modaleFormulaire form {
 	display: flex;
 	flex-direction: column;
-	margin: 20px 0;
 	padding: 0 105px;
 	background-color: white;
 
@@ -412,16 +432,16 @@ footer nav ul {
 }
 
 
-#addPhotoForm i, #addPhotoForm .icone {
+#formulaireImport i, #formulaireImport .icone {
 	padding: 0;
 	background : #E8F1F6;
 }
 
-#addPhotoForm svg {
+#formulaireImport svg {
 	padding: 20px 0 10px 0;
 }
 
-.file-info {
+.fileInfo {
 	padding: 10px 0 25px 0;
 	margin: 0;
 	background : #E8F1F6;
@@ -458,28 +478,52 @@ footer nav ul {
 	font-size: 14px;
 }
 
+#categoryLabel {
+	margin-right: 50px;
+	padding-right: 50px;
+}
+
+#trait {
+	content: '';
+    display: block;
+	margin-top: 50px;
+    height: 1px;
+	width: 100%;
+    max-width: 420px;
+    background-color: #B3B3B3; 
+}
 
 #submitBtn {
 	padding: 10px 0;
-	margin: 50px auto;
+	margin: 30px auto;
 	background: #A7A7A7;
     color: white;
 }
 
-.submitBtnActive {
+#submitBtnActive {
+	padding: 10px 0;
     background: #1D6154;
     color: white;
-}
-
-.submitBtnInactive {
-    background: #A7A7A7;
-    color: white;
-}
-
-#messageSuccess {
-    display: none;
-    color: red;
-	background-color: transparent;
+	display: block;
+	margin: 30px auto;
+	width: 237px;
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 14px;
 	text-align: center;
-    font-size: 16px;
+	border: 0 solid #1D6154;
+	border-radius: 60px;
+	cursor: pointer;
 }
+
+ #imagePreview {
+	height: 169px;
+	object-fit: contain;
+	background-color: #E8F1F6;
+ }
+
+ #categoryErrorMsg, #titleErrorMsg, #photoErrorMsg {
+	background: inherit;
+	text-align: center;
+	margin-top: 20px;
+ }
