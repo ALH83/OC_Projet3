@@ -2,7 +2,7 @@
 async function initialiserPage() {
     await fetchData() // Attend que les données soient récupérées avant de continuer
     afficherFiltres(categoriesData) // Affiche les filtres une fois les données récupérées
-    afficherTravaux('Tous') // Affiche tous les travaux initialement
+    afficherTravaux('Tous') // Affiche tous les travaux
     modeEdition() // Configure la page en mode d'édition si l'utilisateur est connecté
 }
 // Récupération des données dans un tableau
@@ -520,8 +520,6 @@ async function validationFormModale2() {
     titleErrorMsg.style.display = 'none'
     categoryErrorMsg.style.display = 'none'
 
-    
-     
     // Récupère les valeurs des champs du formulaire
     const title = titleInput.value.trim()
     const imageFile = photoInput.files[0] // On suppose qu'un seul fichier est sélectionné
@@ -557,9 +555,6 @@ async function validationFormModale2() {
     // Soumet les données si le formulaire est valide
     if (formValid) {
         envoiFormulaireModale2(title, imageFile, categoryName)
-    } 
-    else {
-        console.log('Le formulaire n\'est pas valide.')
     }
 }
 
@@ -606,21 +601,26 @@ async function envoiFormulaireModale2(title, imageFile, categoryName) {
 
         // Décode la réponse JSON reçue du serveur.
         const result = await response.json()
-        console.log('Succès:', result)
 
         // Ajoute le nouveau projet aux données locales pour une mise à jour instantanée de l'affichage
         travauxData.push(result)
-        afficherTravaux('Tous') // Rafraîchit l'affichage des travaux avec les nouvelles données
+        // Rafraîchit l'affichage des travaux avec les nouvelles données
+        afficherTravaux('Tous')
+        // Rafraîchit l'affichage des travaux de la modale Galerie photo avec les nouvelles données
+        let modalGallery = document.querySelector('.modal-gallery')
+        if (modalGallery) {
+            donneesGalerieModale1(modalGallery, travauxData) // Mise à jour des données de la gallerie photo
+        }
 
-        // Affiche le message de succès
-        alert('Projet importé avec succès')
+        document.querySelector('.modaleGalerie').style.display = 'flex'  // Affiche la modale Gallerie photo
+        document.querySelector('.modaleFormulaire').style.display = 'none'  // Cache la modale Import photo
+
 
         // Réinitialisation des champs du formulaire pour une nouvelle saisie
         resetFormulaireModale2()
 
     // Gère les erreurs potentielles de la requête
     } catch (error) {
-        console.error('Erreur lors de l\'envoi:', error)
         alert('Erreur lors de l\'envoi: ' + error.message)
     }
 }
@@ -690,10 +690,6 @@ function gestionnaireEvenementsModale() {
         button.onclick = function() {
                 document.querySelector('.modaleGalerie').style.display = 'flex'  // Affiche la modale Gallerie photo
                 document.querySelector('.modaleFormulaire').style.display = 'none'  // Cache la modale Import photo
-                let modalGallery = document.querySelector('.modal-gallery')
-                if (modalGallery) {
-                    donneesGalerieModale1(modalGallery, travauxData) // Mise à jour des données de la gallerie photo
-                }
                 resetFormulaireModale2() // Reset du formulaire
             }
         })

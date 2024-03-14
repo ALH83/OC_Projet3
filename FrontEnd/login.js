@@ -48,6 +48,6 @@ function submitFormulaire (email, password) {
 })
         // Gère les erreurs de requête et les affiche dans la console.
         .catch(error => {
-            console.error('Erreur: ', error)
+            alert('Erreur: ', error)
         })
 }
