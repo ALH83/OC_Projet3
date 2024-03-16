@@ -135,21 +135,21 @@ function modeEdition() {
             if (localStorage.getItem('sessionToken')) {
                 event.preventDefault() // Empêche la navigation par défaut
                 localStorage.removeItem('sessionToken') // Supprime le token de session
-                enleverModeEdition() // Met à jour l'interface utilisateur via une fonction dédiée
+                sortieModeEdition() // Met à jour l'interface utilisateur via une fonction dédiée
             }
         })
 
         // Ajoute un écouteur d'événement sur le lien 'Modifier'
         btnEdit.addEventListener('click', function(event) {
             event.preventDefault() // Empêche la navigation
-            afficherModale() // Affiche la modale
+            afficherModale1() // Affiche la modale
         })
         
     }
 }
 
 // Fonction pour retirer les éléments du mode édition après la déconnexion de l'utlisateur (Pour éviter le rechargement complet de la page une fois déconnecté)
-function enleverModeEdition() {
+function sortieModeEdition() {
     // Enlève le bandeau édition
     const bandeau = document.getElementById('bandeauEdition')
     if (bandeau) {
@@ -177,8 +177,8 @@ function enleverModeEdition() {
     }
 }
 
-// Affichage de la modale 
-function afficherModale() {
+// Affichage de la modale Galerie photos
+function afficherModale1() {
     let modal = document.getElementById('modale1')
     // si la modale n'existe pas déjà, renvoie vers la fonction creerModale1 pour la créer
     if (!modal) {
@@ -706,7 +706,7 @@ function resetFormulaireModale2() {
 }
 
 // Gestionnaire d'événements qui concerne l'affichage et la navigation pour les modales
-function gestionnaireEvenementsModale() {
+function gestionnaireEvenementsModales() {
     // Fermeture de la modale lorsque l'utilisateur clique sur le bouton de fermeture ou en dehors de la modale
     window.onclick = function(event) {
         const modales = document.querySelectorAll('.modaleGalerie, .modaleFormulaire')  // Récupère toutes les modales
@@ -735,7 +735,8 @@ function fermetureModales() {
     document.querySelector('.modaleFormulaire').style.display = 'none'
 }
 
-
 initialiserPage().then(() => {
-    gestionnaireEvenementsModale() // Configure les gestionnaires après l'initialisation de la page
+    gestionnaireEvenementsModales() // Configure le gestionnaire après l'initialisation de la page
 })
+
+
