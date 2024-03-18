@@ -76,6 +76,7 @@ function afficherTravaux(categoryName) {
     // Efface le contenu actuel de la galerie
     gallery.innerHTML = ''
     // On détermine quelle liste doit être utilisée, soit la liste complète 'Tous' soit une liste filtrée d'une catégorie spécifiée
+    // Cette fonction passe en revue chaque élément (work) de travauxData et vérifie si le nom de la catégorie de l'élément (work.category.name) correspond au nom de la catégorie sélectionnée (categoryName).
     const travaux = (categoryName === 'Tous') ? travauxData : travauxData.filter(work => work.category.name === categoryName)
     // Boucle sur chaque travail filtré pour l'afficher dans la galerie
        let i = 0
@@ -133,9 +134,8 @@ function modeEdition() {
         // Ajoute un écouteur d'événement sur le lien 'logout' si l'utilisateur est connecté
         lienLog.addEventListener('click', (event) => {
             if (localStorage.getItem('sessionToken')) {
-                event.preventDefault() // Empêche la navigation par défaut
                 localStorage.removeItem('sessionToken') // Supprime le token de session
-                sortieModeEdition() // Met à jour l'interface utilisateur via une fonction dédiée
+                window.location.reload() //on recharge la page
             }
         })
 
@@ -145,35 +145,6 @@ function modeEdition() {
             afficherModale1() // Affiche la modale
         })
         
-    }
-}
-
-// Fonction pour retirer les éléments du mode édition après la déconnexion de l'utlisateur (Pour éviter le rechargement complet de la page une fois déconnecté)
-function sortieModeEdition() {
-    // Enlève le bandeau édition
-    const bandeau = document.getElementById('bandeauEdition')
-    if (bandeau) {
-        bandeau.remove() // Supprime le bandeau d'édition
-        document.body.style.paddingTop = '0' // Réinitialise le padding du body
-    }
-
-    // Enlève le bouton modifier
-    const btnEdit = document.querySelector('.edit-link')
-    if (btnEdit) {
-        btnEdit.remove() // Supprime le bouton de modification
-    }
-
-    // Mise à jour du lien pour se reconnecter
-    const lienLog = document.querySelector('.log')
-    if (lienLog) {
-        lienLog.href = '/login.html'
-        lienLog.innerHTML = 'login'
-    }
-
-    // Réaffiche les filtres
-    const filtres = document.getElementById("filtresMenu")
-    if (filtres) {
-        filtres.style.display = 'flex' 
     }
 }
 
@@ -298,7 +269,7 @@ async function supprimerPhotoModale1(photoId) {
             photoASupprimer.remove()
         }
         
-        // Mise à jour des données de travaux en tenant compte du travail (photo) supprimé
+        // Mise à jour des données de travaux en tenant compte du travail (photo) supprimé : on exclue l'élément dont l'identifiant correspond à photoId.
         travauxData = travauxData.filter(travail => travail.id !== photoId)
         // Rafraîchit l'affichage de la galerie pour refléter la suppression
         afficherTravaux('Tous')
