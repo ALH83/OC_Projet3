@@ -1,7 +1,7 @@
 ### Bienvenue !
 
 Ce projet concerne celui de l'architecte Sophie Bluel. J'ai réalisé la partie Frontend en HTML / CSS / JS à partir de la maquette Figma accessible via le lien ci-dessous :
-[Figma - Maquette Architecte "Sophie BLUEL"](https://www.figma.com/file/sz9RO3PgclbGldRTkgHjHJ/Maquette-Architecte-%22Sophie-BLUEL%22?type=design&node-id=0%3A1&t=JgIdQ67Z8pIe0Gv4-1)
+[Figma - Maquette Architecte "Sophie BLUEL"](https://www.figma.com/design/boJH20eE7iPcUsjiLgHpQQ/Maquette-Architecte-%22Sophie-BLUEL%22?node-id=0-1&t=6qLLBcI2q0PAd3Ea-1)
 
 ![Capture du Portfolio de l'architecte Sophie BLUEL](lien)
 
